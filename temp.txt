@@ -1,0 +1,673 @@
+test
+
+%{
+int COMMENT=0;
+%}
+identifier [a-zA-Z][a-zA-Z0-9]*
+%%
+#.* {printf("\n%s is a preprocessor directive",yytext);}
+int |
+float |
+char |
+double |
+while |
+for |
+struct |
+typedef |
+do |
+if |
+break |
+continue |
+void |
+switch |
+return |
+else |
+goto {printf("\n\t%s is a keyword",yytext);}
+"/*" {COMMENT=1;}{printf("\n\t %s is a COMMENT",yytext);}
+{identifier}\( {if(!COMMENT)printf("\nFUNCTION \n\t%s",yytext);}
+\{ {if(!COMMENT)printf("\n BLOCK BEGINS");}
+\} {if(!COMMENT)printf("BLOCK ENDS ");}
+{identifier}(\[[0-9]*\])? {if(!COMMENT) printf("\n %s IDENTIFIER",yytext);}
+\".*\" {if(!COMMENT)printf("\n\t %s is a STRING",yytext);}
+[0-9]+ {if(!COMMENT) printf("\n %s is a NUMBER ",yytext);}
+\)(\:)? {if(!COMMENT)printf("\n\t");ECHO;printf("\n");}
+\( ECHO;
+= {if(!COMMENT)printf("\n\t %s is an ASSIGNMENT OPERATOR",yytext);}
+\<= |
+\>= |
+\< |
+== |
+\> {if(!COMMENT) printf("\n\t%s is a RELATIONAL OPERATOR",yytext);}
+%%
+int main(int argc, char **argv)
+{
+FILE *file;
+file=fopen("var.c","r");
+if(!file)
+{
+printf("could not open the file");
+exit(0);
+}
+yyin=file;
+yylex();
+printf("\n");
+return(0);
+}
+int yywrap()
+{
+return(1);
+}
+var.c
+#include<stdio.h>
+#include<conio.h>
+void main()
+{
+int a,b,c;
+a=1;
+b=2;
+c=a+b;
+printf("Sum:%d",c);
+}
+
+
+
+
+{printf("\nq%d",i);
+for(int j=0;j<d.noi;j++)
+{printf("\t%d",d.delta[i][j]);
+}
+printf("\n");
+}
+do{
+char string[10];
+printf("\nEnter a string: ");
+scanf("%s",string);
+int stateCounter = 0;
+int flag = 1;
+for(int i=0;i<strlen(string);i++)
+{int symPos = checkSymbol(string[i],d);
+if(symPos==-1)
+{flag = 0;
+break;
+}
+stateCounter = d.delta[stateCounter][symPos];
+}
+if(flag==1 && checkFinalState(stateCounter,d)==1)
+{printf("%s is accepted. ",string);
+}
+else
+{printf("%s is not accpeted. ",string);
+}
+}while(1);
+return 0;
+}
+epsilon
+#include<stdio.h>
+#include<stdlib.h>
+struct node
+{ int st;
+struct node *link;
+};
+void findclosure(int, int);
+void insert_trantbl(int, char, int);
+int findalpha(char);
+void print_e_closure(int);
+static int set[20],nostate,noalpha,s,notransition,c,r,buffer[20];
+char alphabet[20];
+static int e_closure[20][20] ={0};
+struct node *transition[20][20] ={NULL};
+void main()
+{ int i, j, k, m, t, n;
+struct node *temp;
+printf ("Enter the number of alphabets?\n");
+scanf ("%d", &noalpha);
+getchar ();
+printf ("NOTE:- [ use letter e as epsilon]\n");
+printf ("NOTE:- [e must be last character ,if it is present]\n");
+printf ("\nEnter alphabets?\n");
+for (i = 0; i < noalpha; i++)
+{ alphabet[i] = getchar ();
+getchar ();
+}
+printf ("\nEnter the number of states?\n");
+scanf ("%d", &nostate);
+printf ("\nEnter no of transition?\n");
+scanf ("%d", &notransition);
+printf ("NOTE:- [Transition is in the form-> qno alphabet qno]\n",
+notransition);
+printf ("NOTE:- [States number must be greater than zero]\n");
+printf ("\nEnter transition?\n");
+for (i = 0; i < notransition; i++)
+{ scanf ("%d %c%d", &r, &c, &s);
+insert_trantbl (r, c, s);
+}
+printf ("\n");
+printf ("e-closure of statesb...\n");
+printf (".............................\n");
+for (i = 1; i <= nostate; i++)
+{ c = 0;
+for (j = 0; j < 20; j++)
+{ buffer[j] = 0;
+e_closure[i][j] = 0;
+}
+findclosure (i, i);
+printf ("\ne-closure(q%d): ", i);
+print_e_closure (i);
+}
+}
+void findclosure(int x, int sta)
+{ struct node *temp;
+int i;
+if (buffer[x])
+return;
+e_closure[sta][c++] = x;
+buffer[x] = 1;
+if (alphabet[noalpha - 1] == 'e' && transition[x][noalpha - 1] != NULL)
+{ temp = transition[x][noalpha - 1];
+while (temp != NULL)
+{ findclosure (temp->st, sta);
+temp = temp->link;
+}
+}
+}
+void insert_trantbl(int r, char c, int s)
+{ int j;
+struct node *temp;
+j = findalpha (c);
+if (j == 999)
+{ printf ("error\n");
+exit (0);
+}
+temp = (struct node *) malloc (sizeof (struct node));
+temp->st = s;
+temp->link = transition[r][j];
+transition[r][j] = temp;
+}
+int findalpha(char c)
+{ int i;
+for (i = 0; i < noalpha; i++)
+if (alphabet[i] == c)
+return i;
+return (999);
+}
+void print_e_closure(int i)
+{ int j;
+printf ("{");
+for (j = 0; e_closure[i][j] != 0; j++)
+printf ("q%d,", e_closure[i][j]);
+printf ("}");
+}
+nfarec
+#include<stdio.h>
+#include<stdlib.h>
+struct node
+{ int st;
+struct node *link;
+};
+void findclosure (int, int);
+void insert_trantbl (int, char, int);
+int findalpha (char);
+void findfinalstate (void);
+void unionclosure (int);
+void print_e_closure (int);
+static int set[20], nostate, noalpha, s, notransition, nofinal, start,
+finalstate[20], c, r, buffer[20];
+char alphabet[20];
+static int e_closure[20][20] = { 0 };
+struct node *transition[20][20] = { NULL };
+void main ()
+{ int i, j, k, m, t, n;
+struct node *temp;
+printf ("enter the number of alphabets?\n");
+scanf ("%d", &noalpha);
+getchar ();
+printf ("NOTE:- [ use letter e as epsilon]\n");
+printf ("NOTE:- [e must be last character ,if it is present]\n");
+printf ("\nEnter alphabets?\n");
+for (i = 0; i < noalpha; i++)
+{ alphabet[i] = getchar ();
+getchar ();
+}
+printf ("Enter the number of states?\n");
+scanf ("%d", &nostate);
+printf ("Enter the start state?\n");
+scanf ("%d", &start);
+printf ("Enter the number of final states?\n");
+scanf ("%d", &nofinal);
+printf ("Enter the final states?\n");
+for (i = 0; i < nofinal; i++)
+scanf ("%d", &finalstate[i]);
+printf ("Enter no of transition?\n");
+scanf ("%d", &notransition);
+printf ("NOTE:- [Transition is in the form--> qno alphabet qno]\n",
+notransition);
+printf ("NOTE:- [States number must be greater than zero]\n");
+printf ("\nEnter transition?\n");
+for (i = 0; i < notransition; i++)
+{ scanf ("%d %c%d", &r, &c, &s);
+insert_trantbl (r, c, s);
+}
+printf ("\n");
+for (i = 1; i <= nostate; i++)
+{ c = 0;
+for (j = 0; j < 20; j++)
+{ buffer[j] = 0;
+e_closure[i][j] = 0;
+}
+findclosure (i, i);
+}
+printf ("Equivalent NFA without epsilon\n");
+printf ("-----------------------------------\n");
+printf ("start state:");
+print_e_closure (start);
+printf ("\nAlphabets:");
+for (i = 0; i < noalpha; i++)
+printf ("%c ", alphabet[i]);
+printf ("\nStates :");
+for (i = 1; i <= nostate; i++)
+print_e_closure (i);
+printf ("\nTransitions are...:\n");
+for (i = 1; i <= nostate; i++)
+{ for (j = 0; j < noalpha - 1; j++)
+{ for (m = 1; m <= nostate; m++)
+set[m] = 0;
+for (k = 0; e_closure[i][k] != 0; k++)
+{ t = e_closure[i][k];
+temp = transition[t][j];
+while (temp != NULL)
+{ unionclosure (temp->st);
+temp = temp->link;
+}
+}
+printf ("\n");
+print_e_closure (i);
+printf ("%c\t", alphabet[j]);
+printf ("{");
+for (n = 1; n <= nostate; n++)
+{ if (set[n] != 0)
+printf ("q%d,", n);
+}
+printf ("}");
+}
+}
+printf ("\nFinal states:");
+findfinalstate ();
+}
+void findclosure (int x, int sta)
+{ struct node *temp;
+int i;
+if (buffer[x])
+return;
+e_closure[sta][c++] = x;
+buffer[x] = 1;
+if (alphabet[noalpha - 1] == 'e' && transition[x][noalpha - 1] != NULL)
+{ temp = transition[x][noalpha - 1];
+while (temp != NULL)
+{ findclosure (temp->st, sta);
+temp = temp->link;
+}
+}
+}
+void insert_trantbl (int r, char c, int s)
+{ int j;
+struct node *temp;
+j = findalpha (c);
+if (j == 999)
+{ printf ("error\n");
+exit (0);
+}
+temp = (struct node *) malloc (sizeof (struct node));
+temp->st = s;
+temp->link = transition[r][j];
+transition[r][j] = temp;
+}
+int findalpha (char c)
+{ int i;
+for (i = 0; i < noalpha; i++)
+if (alphabet[i] == c)
+return i;
+return (999);
+}
+void unionclosure (int i)
+{ int j = 0, k;
+while (e_closure[i][j] != 0)
+{ k = e_closure[i][j];
+set[k] = 1;
+j++;
+}
+}
+void findfinalstate ()
+{ int i, j, k, t;
+for (i = 0; i < nofinal; i++)
+{ for (j = 1; j <= nostate; j++)
+{ for (k = 0; e_closure[j][k] != 0; k++)
+{ if (e_closure[j][k] == finalstate[i])
+{ print_e_closure (j);
+}
+}
+}
+}
+}
+void print_e_closure (int i)
+{ int j = 0;
+printf ("{");
+if (e_closure[i][j] != 0)
+printf ("q%d,", e_closure[i][0]);
+printf ("}\t");
+}
+np lex
+%{
+#include<stdio.h>
+int sc=0,wc=0,lc=0,cc=0;
+%}
+%%
+[\n] { lc++; cc+=yyleng;}
+[ \t] { sc++; cc+=yyleng;}
+[^\t\n ]+ { wc++; cc+=yyleng;}
+%%
+int main(int argc ,char* argv[ ])
+{ printf("Enter the input:\n");
+yylex();
+printf("The number of lines=%d\n",lc);
+printf("The number of spaces=%d\n",sc);
+printf("The number of words=%d\n",wc);
+printf("The number of characters are=%d\n",cc);
+}
+int yywrap( )
+{ return 1;
+}
+sub.l
+%{
+#include<stdio.h>
+#include<string.h>
+int i;
+%}
+%%
+[a-z A-Z]* {
+for(i=0;i<=yyleng;i++)
+{
+if((yytext[i]=='a')&&(yytext[i+1]=='b')&&(yytext[i+2]=='c'))
+{
+yytext[i]='A';
+yytext[i+1]='B';
+yytext[i+2]='C';
+}
+}
+printf("%s",yytext);
+}
+[\t]* return 1;
+.* {ECHO;}
+\n {printf("%s",yytext);}
+%%
+int main()
+{
+yylex();
+}
+int yywrap()
+{
+return 1;
+}
+vowel.l
+%{
+int vow_count=0;
+int const_count=0;
+%}
+%%
+[aeiouAEIOU] {vow_count++;}
+[a-zA-Z] {const_count++;}
+%%
+int yywrap(){}
+int main()
+{ printf("Enter the String of Vowels and Consonents:");
+yylex();
+printf("The number of vowels are: %d\n", vow_count);
+printf("The number of consonents are: %d\n", const_count);
+return 0;
+}
+caculator
+l file
+%{
+#include<stdio.h>
+#include"y.tab.h"
+extern int yylval;
+%}
+%%
+[0-9]+ {yylval=atoi(yytext);
+return digit;
+}
+[\t] ;
+[\n] return 0;
+. return yytext[0];
+%%
+int yywrap()
+{
+return 1;
+}
+y file
+%{ #include<stdio.h>
+int flag=0;
+%}
+%token digit
+%left '+' '-'
+%left '*' '/' '%'
+%left '(' ')'
+%%
+ArithmeticExpression: E{
+printf("\nResult=%d\n",$$);
+return 0;
+};
+E:E'+'E{$$=$1+$3;}
+|E'-'E{$$=$1-$3;}
+|E'*'E{$$=$1*$3;}
+|E'/'E{$$=$1/$3;}
+|E'%'E{$$=$1%$3;}
+|'('E')' {$$=$2;}
+| digit {$$=$1;}
+;
+%%
+void main()
+{ printf("\nEnter an arithmetic expression:\n");
+yyparse();
+if(flag==0)
+printf("\nEntered arithmetic expression is valid\n");
+}
+void yyerror()
+{ printf("\nEntered arithmetic expression is Invalid\n");
+flag=1;
+}
+first n follow
+#include<stdio.h>
+#include<math.h>
+#include<string.h>
+#include<ctype.h>
+#include<stdlib.h>
+int n,m=0,p,i=0,j=0;
+char a[10][10],f[10];
+void follow(char c);
+void first(char c);
+int main(){
+int i,z;
+char c,ch;
+printf("Enter the no of prooductions:\n");
+scanf("%d",&n);
+printf("Enter the productions:\n");
+for(i=0;i<n;i++)
+scanf("%s%c",a[i],&ch);
+do{
+m=0;
+printf("Enter the elemets whose fisrt & follow is to be found:");
+scanf("%c",&c);
+first(c);
+printf("First(%c)={",c);
+for(i=0;i<m;i++)
+printf("%c",f[i]);
+printf("}\n");
+strcpy(f," ");
+m=0;
+follow(c);
+printf("Follow(%c)={",c);
+for(i=0;i<m;i++)
+printf("%c",f[i]);
+printf("}\n");
+printf("Continue(0/1)?");
+scanf("%d%c",&z,&ch);
+}while(z==1);
+return(0);
+}
+void first(char c)
+{
+int k;
+if(!isupper(c))
+f[m++]=c;
+for(k=0;k<n;k++)
+{
+if(a[k][0]==c)
+{
+if(a[k][2]=='$')
+follow(a[k][0]);
+else if(islower(a[k][2]))
+f[m++]=a[k][2];
+else first(a[k][2]);
+}
+}
+}
+void follow(char c)
+{
+if(a[0][0]==c)
+f[m++]='$';
+for(i=0;i<n;i++)
+{
+for(j=2;j<strlen(a[i]);j++)
+{
+if(a[i][j]==c)
+{
+if(a[i][j+1]!='\0')
+first(a[i][j+1]);
+if(a[i][j+1]=='\0' && c!=a[i][0])
+follow(a[i][0]);
+}
+}
+}
+}
+RDP
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+char input[10];
+int i, error;
+void E(),T(),Eprime(),Tprime(),F();
+int main ()
+{ i = 0;
+error = 0;
+printf ("Enter an arithmetic expression : ");
+gets(input);
+E();
+if (strlen (input) == i && error == 0)
+printf ("\nAccepted..!!!\n");
+else
+printf ("\nRejected..!!!\n");
+}
+void E ()
+{ T();
+Eprime();
+}
+void Eprime()
+{ if (input[i] == '+' || input[i] == '-')
+{ i++;
+T();
+Eprime();
+}
+}
+void T()
+{ F();
+Tprime();
+}
+void Tprime()
+{ if (input[i] == '*')
+{ i++;
+F();
+Tprime();
+}
+}
+void F()
+{ if (isalnum (input[i]))
+while (isalnum (input[i]))
+i++;
+else
+error = 1;
+}
+SRP
+#include<stdio.h>
+#include<string.h>
+int k=0,z=0,i=0,j=0,c=0;
+char a[16],ac[20],stk[15],act[10];
+void check();
+int main()
+{
+puts("GRAMMAR is E->E+E \n E->E*E \n E->(E) \n E->id");
+puts("enter input string ");
+scanf("%s",a);
+c=strlen(a);
+strcpy(act,"SHIFT->");
+puts("stack \t input \t action");
+for(k=0,i=0; j<c; k++,i++,j++)
+{
+if(a[j]=='i' && a[j+1]=='d')
+{
+stk[i]=a[j];
+stk[i+1]=a[j+1];
+stk[i+2]='\0';
+a[j]=' ';
+a[j+1]=' ';
+printf("\n$%s\t%s$\t%sid",stk,a,act);
+check();
+}
+else
+{
+stk[i]=a[j];
+stk[i+1]='\0';
+a[j]=' ';
+printf("\n$%s\t%s$\t%ssymbols",stk,a,act);
+check();
+}
+}
+}
+void check()
+{
+strcpy(ac,"REDUCE TO E");
+for(z=0; z<c; z++)
+if(stk[z]=='i' && stk[z+1]=='d')
+{
+stk[z]='E';
+stk[z+1]='\0';
+printf("\n$%s\t%s$\t%s",stk,a,ac);
+j++;
+}
+for(z=0; z<c; z++)
+if(stk[z]=='E' && stk[z+1]=='+' && stk[z+2]=='E')
+{
+stk[z]='E';
+stk[z+1]='\0';
+stk[z+2]='\0';
+printf("\n$%s\t%s$\t%s",stk,a,ac);
+i=i-2;
+}
+for(z=0; z<c; z++)
+if(stk[z]=='E' && stk[z+1]=='*' && stk[z+2]=='E')
+{
+stk[z]='E';
+stk[z+1]='\0';
+stk[z+1]='\0';
+printf("\n$%s\t%s$\t%s",stk,a,ac);
+i=i-2;
+}
+for(z=0; z<c; z++)
+if(stk[z]=='(' && stk[z+1]=='E' && stk[z+2]==')')
+{
+stk[z]='E';
+stk[z+1]='\0';
+stk[z+1]='\0';
+printf("\n$%s\t%s$\t%s",stk,a,ac);
+i=i-2;
+}
+}
